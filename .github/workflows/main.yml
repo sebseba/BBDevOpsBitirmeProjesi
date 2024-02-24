@@ -4,24 +4,29 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build-and-push:
-    runs-on: sercansozeri/bitirmefrontendreposu
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
-      - name: Build and push backend image
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Backend Image
+        working-directory: backend
         run: |
-          docker build -t my-backend-app -f backend/Dockerfile backend
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          docker push my-backend-app
-      
-      - name: Build and push frontend image
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
+
+      - name: Build and Push Frontend Image
+        working-directory: frontend
         run: |
-          docker build -t my-frontend-app -f frontend/Dockerfile frontend
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          docker push my-frontend-app
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/frontend:latest
