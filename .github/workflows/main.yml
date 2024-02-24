@@ -1,0 +1,27 @@
+name: Release Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: sercansozeri/bitirmefrontendreposu
+
+    steps:
+      - name: Checkout Repository
+      - uses: actions/checkout@v2
+
+      - name: Build and push backend image
+        run: |
+          docker build -t my-backend-app -f backend/Dockerfile backend
+          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          docker push my-backend-app
+      
+      - name: Build and push frontend image
+        run: |
+          docker build -t my-frontend-app -f frontend/Dockerfile frontend
+          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          docker push my-frontend-app
